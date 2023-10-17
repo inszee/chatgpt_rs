@@ -218,6 +218,20 @@ impl Conversation {
         Ok(())
     }
 
+     /// if request error and u can push history after error response.
+     pub fn push_history_after_streaming<S: Into<String>>(
+        &mut self,
+        role: Role,
+        message: S,
+    ) -> crate::Result<()> {
+        self.history.push(ChatMessage {
+            role: role,
+            content: message.into(),
+            function_call: None,
+        });
+        Ok(())
+    }
+
     /// Saves the history to a local postcard file, that can be restored to a conversation at runtime later.
     #[cfg(feature = "postcard")]
     pub async fn save_history_postcard<P: AsRef<Path>>(&self, to: P) -> crate::Result<()> {

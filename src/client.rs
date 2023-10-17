@@ -139,6 +139,14 @@ impl ChatGPT {
         Conversation::new(self.clone(), direction_message.into())
     }
 
+    /// Restores a conversation from conversiton vec,may be from postgres jsonb
+    pub async fn restore_conversation_chat_msg_vec(
+        &self,
+        jsonb: Vec<ChatMessage>,
+    ) -> crate::Result<Conversation> {
+        Ok(Conversation::new_with_history(self.clone(), jsonb))
+    }
+
     /// Explicitly sends whole message history to the API.
     ///
     /// In most cases, if you would like to store message history, you should be looking at the [`Conversation`] struct, and
