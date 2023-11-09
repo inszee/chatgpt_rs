@@ -306,27 +306,36 @@ impl ChatGPT {
             .map(|response| {
                 let response_stream = response.bytes_stream().eventsource();
                 response_stream.map(move |part| {
-                    let chunk = &part.expect("Stream closed abruptly!").data;
-                    if chunk == "[DONE]" {
-                        return ResponseChunk::Done;
-                    }
-                    let data: InboundResponseChunk = serde_json::from_str(chunk)
-                        .expect("Invalid inbound streaming response payload!");
-                    let choice = data.choices[0].to_owned();
-                    match choice.delta {
-                        InboundChunkPayload::AnnounceRoles { role } => {
-                            ResponseChunk::BeginResponse {
-                                role,
-                                response_index: choice.index,
+                    match part {
+                        // FIX: always timeout.
+                        Ok(part_data) => {
+                            let chunk = &part_data.data;
+                            if chunk == "[DONE]" {
+                                return ResponseChunk::Done;
+                            }
+                            let data: InboundResponseChunk = serde_json::from_str(chunk)
+                                .expect("Invalid inbound streaming response payload!");
+                            let choice = data.choices[0].to_owned();
+                            match choice.delta {
+                                InboundChunkPayload::AnnounceRoles { role } => {
+                                    ResponseChunk::BeginResponse {
+                                        role,
+                                        response_index: choice.index,
+                                    }
+                                }
+                                InboundChunkPayload::StreamContent { content } => ResponseChunk::Content {
+                                    delta: content,
+                                    response_index: choice.index,
+                                },
+                                InboundChunkPayload::Close {} => ResponseChunk::CloseResponse {
+                                    response_index: choice.index,
+                                },
                             }
                         }
-                        InboundChunkPayload::StreamContent { content } => ResponseChunk::Content {
-                            delta: content,
-                            response_index: choice.index,
-                        },
-                        InboundChunkPayload::Close {} => ResponseChunk::CloseResponse {
-                            response_index: choice.index,
-                        },
+                        Err(err) => {
+                            log::error!("Stream closed abruptly,with err:{}",err);
+                            return ResponseChunk::Done;
+                        }
                     }
                 })
             })
