@@ -280,6 +280,7 @@ impl Conversation {
         Ok(())
     }
 
+    #[cfg(feature = "functions")]
      /// if request error and u can push history after error response.
      pub fn push_history_after_streaming<S: Into<String>>(
         &mut self,
