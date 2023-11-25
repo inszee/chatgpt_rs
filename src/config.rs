@@ -23,7 +23,7 @@ pub struct ModelConfiguration {
     /// Determines how much to penalize new tokens based on their existing frequency so far
     pub frequency_penalty: f32,
     /// The maximum amount of replies
-    pub reply_count: u32,
+    pub reply_count: Option<u32>,
     /// URL of the /v1/chat/completions endpoint. Can be used to set a proxy
     pub api_url: url::Url,
     /// Timeout for the http requests sent to avoid potentially permanently hanging requests.
@@ -44,7 +44,7 @@ impl Default for ModelConfiguration {
             max_tokens: None,
             presence_penalty: 0.0,
             frequency_penalty: 0.0,
-            reply_count: 1,
+            reply_count: Some(1),
             api_url: url::Url::from_str("https://api.openai.com/v1/chat/completions").unwrap(),
             timeout: Duration::from_secs(10),
             user: "".to_string(),

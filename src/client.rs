@@ -214,12 +214,7 @@ impl ChatGPT {
     ) -> crate::Result<impl Stream<Item = ResponseChunk>> {
         log::debug!("send_history_streaming url = {},and json = {:?}",self.config.api_url,serde_json::json!(&CompletionRequest {
             model: self.config.engine.as_ref(),
-            messages: &vec![ChatMessage {
-                role: Role::User,
-                content: r#"董事长是谁?"#.to_string(),
-                #[cfg(feature = "functions")]
-                function_call: None,
-            }],
+            messages: history,
             stream: true,
             temperature: self.config.temperature,
             top_p: self.config.top_p,
@@ -336,13 +331,14 @@ impl ChatGPT {
         use eventsource_stream::Eventsource;
         use futures_util::StreamExt;
 
+        let mut interrupt = false;
         // also handles errors
         response
             .error_for_status()
             .map(|response| {
                 let response_stream = response.bytes_stream().eventsource();
                 response_stream.map(move |part| {
-                    match part {
+                    match &part {
                         // FIX: always timeout.
                         Ok(part_data) => {
                             let chunk = &part_data.data;
@@ -370,6 +366,11 @@ impl ChatGPT {
                         }
                         Err(err) => {
                             log::error!("Stream closed abruptly,with err:{}",err);
+                            if interrupt {
+                                part.expect("Stream closed abruptly!").data;
+                            } else {
+                                interrupt = true;
+                            }
                             return ResponseChunk::Done;
                         }
                     }

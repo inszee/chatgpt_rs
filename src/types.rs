@@ -96,7 +96,8 @@ pub struct CompletionRequest<'a> {
     pub presence_penalty: f32,
     /// Determines the amount of output responses
     #[serde(rename = "n")]
-    pub reply_count: u32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reply_count: Option<u32>,
     /// All functions that can be called by ChatGPT
     #[cfg(feature = "functions")]
     #[serde(skip_serializing_if = "Vec::is_empty")]
