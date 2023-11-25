@@ -31,7 +31,7 @@ pub mod test {
 
     #[tokio::test]
     async fn test_client() -> crate::Result<()> {
-        let client = ChatGPT::new(std::env::var("TEST_API_KEY")?)?;
+        let client = ChatGPT::new(std::env::var("TEST_API_KEY")?,None)?;
         let resp = client
             .send_message("Write me a short pun about the Rust language.")
             .await?;
@@ -41,7 +41,7 @@ pub mod test {
 
     #[tokio::test]
     async fn test_undirected_conversation() -> crate::Result<()> {
-        let client = ChatGPT::new(std::env::var("TEST_API_KEY")?)?;
+        let client = ChatGPT::new(std::env::var("TEST_API_KEY")?,None)?;
         let mut conv = client.new_conversation();
         let resp = conv
             .send_message("Could you tell me what day is it today?")
@@ -52,7 +52,7 @@ pub mod test {
 
     #[tokio::test]
     async fn test_conversation() -> crate::Result<()> {
-        let client = ChatGPT::new(std::env::var("TEST_API_KEY")?)?;
+        let client = ChatGPT::new(std::env::var("TEST_API_KEY")?,None)?;
         let mut conv = client.new_conversation_directed(
             "You are TestGPT, an AI model developed in Rust in year 2023.",
         );
@@ -66,7 +66,7 @@ pub mod test {
 
     #[tokio::test]
     async fn test_conversation_saving() -> crate::Result<()> {
-        let client = ChatGPT::new(std::env::var("TEST_API_KEY")?)?;
+        let client = ChatGPT::new(std::env::var("TEST_API_KEY")?,None)?;
         let mut conv = client.new_conversation_directed(
             "You are TestGPT, an AI model developed in Rust in year 2023.",
         );
@@ -82,7 +82,7 @@ pub mod test {
 
     #[tokio::test]
     async fn test_conversation_restoring() -> crate::Result<()> {
-        let client = ChatGPT::new(std::env::var("TEST_API_KEY")?)?;
+        let client = ChatGPT::new(std::env::var("TEST_API_KEY")?,None)?;
         let mut conv = client.restore_conversation_json("history.json").await?;
         let _resp = conv
             .send_message("Could you tell me what did I ask you about in my first question?")
@@ -95,6 +95,7 @@ pub mod test {
     async fn test_some_config() -> crate::Result<()> {
         let client = ChatGPT::new_with_config(
             std::env::var("TEST_API_KEY")?,
+            None,
             ModelConfiguration {
                 temperature: 0.9,
                 reply_count: 3,
@@ -110,7 +111,7 @@ pub mod test {
 
     #[tokio::test]
     async fn test_streaming() -> crate::Result<()> {
-        let client = ChatGPT::new(std::env::var("TEST_API_KEY")?)?;
+        let client = ChatGPT::new(std::env::var("TEST_API_KEY")?,None)?;
         let response = client
             .send_message_streaming("Could you give me names of three popular Rust web frameworks?")
             .await?;
@@ -121,7 +122,7 @@ pub mod test {
 
     #[tokio::test]
     async fn test_streaming_conv() -> crate::Result<()> {
-        let client = ChatGPT::new(std::env::var("TEST_API_KEY")?)?;
+        let client = ChatGPT::new(std::env::var("TEST_API_KEY")?,None)?;
         let mut conv = client.new_conversation();
         let _ = conv
             .send_message("Could you give me names of three popular Rust web frameworks?")
@@ -138,6 +139,7 @@ pub mod test {
     async fn test_max_token_config() -> crate::Result<()> {
         let client = ChatGPT::new_with_config(
             std::env::var("TEST_API_KEY")?,
+            None,
             ModelConfiguration {
                 max_tokens: Some(10),
                 ..Default::default()
@@ -157,6 +159,7 @@ pub mod test {
     async fn test_default_max_token_config() -> crate::Result<()> {
         let client = ChatGPT::new_with_config(
             std::env::var("TEST_API_KEY")?,
+            None,
             ModelConfiguration {
                 ..Default::default()
             },

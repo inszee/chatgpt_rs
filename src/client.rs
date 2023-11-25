@@ -31,18 +31,19 @@ pub struct ChatGPT {
 
 impl ChatGPT {
     /// Constructs a new ChatGPT API client with provided API key and default configuration
-    pub fn new<S: Into<String>>(api_key: S) -> crate::Result<Self> {
-        Self::new_with_config(api_key, ModelConfiguration::default())
+    pub fn new<S: Into<String>>(api_key: S,origin_id: Option<S>) -> crate::Result<Self> {
+        Self::new_with_config(api_key, origin_id,ModelConfiguration::default())
     }
 
     /// Constructs a new ChatGPT API client with provided API key, default configuration and a reqwest proxy
-    pub fn new_with_proxy<S: Into<String>>(api_key: S, proxy: Proxy) -> crate::Result<Self> {
-        Self::new_with_config_proxy(api_key, ModelConfiguration::default(), proxy)
+    pub fn new_with_proxy<S: Into<String>>(api_key: S,origin_id: Option<S>, proxy: Proxy) -> crate::Result<Self> {
+        Self::new_with_config_proxy(api_key, origin_id,ModelConfiguration::default(), proxy)
     }
 
     /// Constructs a new ChatGPT API client with provided API Key and Configuration
     pub fn new_with_config<S: Into<String>>(
         api_key: S,
+        origin_id: Option<S>,
         config: ModelConfiguration,
     ) -> crate::Result<Self> {
         let api_key = api_key.into();
@@ -51,6 +52,14 @@ impl ChatGPT {
             AUTHORIZATION,
             HeaderValue::from_bytes(format!("Bearer {api_key}").as_bytes())?,
         );
+        if origin_id.is_some() {
+            let origin_id = origin_id.unwrap().into();
+            headers.insert(
+                "OpenAI-Organization",
+                HeaderValue::from_bytes(format!("{origin_id}").as_bytes())?,
+            );
+        }
+       
         let client = reqwest::ClientBuilder::new()
             .default_headers(headers)
             .timeout(config.timeout)
@@ -61,6 +70,7 @@ impl ChatGPT {
     /// Constructs a new ChatGPT API client with provided API Key, Configuration and Reqwest proxy
     pub fn new_with_config_proxy<S: Into<String>>(
         api_key: S,
+        origin_id: Option<S>,
         config: ModelConfiguration,
         proxy: Proxy,
     ) -> crate::Result<Self> {
@@ -70,7 +80,13 @@ impl ChatGPT {
             AUTHORIZATION,
             HeaderValue::from_bytes(format!("Bearer {api_key}").as_bytes())?,
         );
-
+        if origin_id.is_some() {
+            let origin_id = origin_id.unwrap().into();
+            headers.insert(
+                "OpenAI-Organization",
+                HeaderValue::from_bytes(format!("{origin_id}").as_bytes())?,
+            );
+        }
         let client = reqwest::ClientBuilder::new()
             .default_headers(headers)
             .timeout(config.timeout)
