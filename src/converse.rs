@@ -236,21 +236,20 @@ impl Conversation {
                         new_history.push(self.history[self.history.len() - 3].to_owned());
                         new_history.push(self.history[self.history.len() - 2].to_owned());
                         new_history.push(self.history[self.history.len() - 1].to_owned());
-                    }  else if new_history.len() == 7 {
-                        new_history.push(self.history[self.history.len() - 4].to_owned());
-                        new_history.push(self.history[self.history.len() - 3].to_owned());
-                        new_history.push(self.history[self.history.len() - 2].to_owned());
-                        new_history.push(self.history[self.history.len() - 1].to_owned());
-                    } else {
-                        // 保留多一轮对话(user + assistant)
-                        new_history.push(self.history[self.history.len() - 5].to_owned());
-                        new_history.push(self.history[self.history.len() - 4].to_owned());
-                        new_history.push(self.history[self.history.len() - 3].to_owned());
-                        new_history.push(self.history[self.history.len() - 2].to_owned());
-                        new_history.push(self.history[self.history.len() - 1].to_owned());
                     }
                     self.history.clear();
                     self.history.extend_from_slice(&new_history);
+                    if let Ok(token_count) = self.get_retain_completion_max_tokens() {
+                        if token_count <= 1024 {
+                            log::warn!("send_message_streaming transcate token for input double check!...");
+                            let mut new_history = vec![];
+                            new_history.push(self.history[0].to_owned());
+                            new_history.push(self.history[1].to_owned());
+                            new_history.push(self.history[2].to_owned());
+                            self.history.clear();
+                            self.history.extend_from_slice(&new_history);
+                        }
+                    }
                 }
             }
         }
@@ -296,10 +295,10 @@ impl Conversation {
         let mut new_history = vec![];
         // 保留3轮对话
         if self.history.len() <= 3 {
-            log::warn!("send_message_streaming too long for user input...");
+            log::warn!("push_history_after_streaming too long for user input...");
         } else {
             // 只保留前3轮对话主题和当前对话
-            log::warn!("send_message_streaming transcate token for input...");
+            log::warn!("push_history_after_streaming transcate token for input...");
             new_history.push(self.history[0].to_owned());
             new_history.push(self.history[1].to_owned());
             new_history.push(self.history[2].to_owned());
@@ -312,21 +311,20 @@ impl Conversation {
                 new_history.push(self.history[self.history.len() - 3].to_owned());
                 new_history.push(self.history[self.history.len() - 2].to_owned());
                 new_history.push(self.history[self.history.len() - 1].to_owned());
-            }  else if new_history.len() == 7 {
-                new_history.push(self.history[self.history.len() - 4].to_owned());
-                new_history.push(self.history[self.history.len() - 3].to_owned());
-                new_history.push(self.history[self.history.len() - 2].to_owned());
-                new_history.push(self.history[self.history.len() - 1].to_owned());
-            } else {
-                // 保留多一轮对话(user + assistant)
-                new_history.push(self.history[self.history.len() - 5].to_owned());
-                new_history.push(self.history[self.history.len() - 4].to_owned());
-                new_history.push(self.history[self.history.len() - 3].to_owned());
-                new_history.push(self.history[self.history.len() - 2].to_owned());
-                new_history.push(self.history[self.history.len() - 1].to_owned());
             }
             self.history.clear();
             self.history.extend_from_slice(&new_history);
+            if let Ok(token_count) = self.get_retain_completion_max_tokens() {
+                if token_count <= 1024 {
+                    log::warn!("push_history_after_streaming transcate token for input double check!...");
+                    let mut new_history = vec![];
+                    new_history.push(self.history[0].to_owned());
+                    new_history.push(self.history[1].to_owned());
+                    new_history.push(self.history[2].to_owned());
+                    self.history.clear();
+                    self.history.extend_from_slice(&new_history);
+                }
+            }
         }
         self.history.push(ChatMessage {
             role: role,
