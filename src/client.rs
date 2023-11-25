@@ -266,6 +266,24 @@ impl ChatGPT {
         &self,
         message: S,
     ) -> crate::Result<impl Stream<Item = ResponseChunk>> {
+        log::info!("send_message_streaming url = {},and json = {:?}",self.config.api_url,serde_json::json!(&CompletionRequest {
+            model: self.config.engine.as_ref(),
+            messages: &vec![ChatMessage {
+                role: Role::User,
+                content: r#"董事长是谁?"#.to_string(),
+                #[cfg(feature = "functions")]
+                function_call: None,
+            }],
+            stream: true,
+            temperature: self.config.temperature,
+            top_p: self.config.top_p,
+            max_tokens: self.config.max_tokens,
+            frequency_penalty: self.config.frequency_penalty,
+            presence_penalty: self.config.presence_penalty,
+            reply_count: self.config.reply_count,
+            #[cfg(feature = "functions")]
+            functions: &Vec::new(),
+        }));
         let response = self
             .client
             .post(self.config.api_url.clone())
