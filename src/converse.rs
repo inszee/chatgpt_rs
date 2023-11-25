@@ -236,8 +236,14 @@ impl Conversation {
                         new_history.push(self.history[self.history.len() - 3].to_owned());
                         new_history.push(self.history[self.history.len() - 2].to_owned());
                         new_history.push(self.history[self.history.len() - 1].to_owned());
+                    }  else if new_history.len() == 7 {
+                        new_history.push(self.history[self.history.len() - 4].to_owned());
+                        new_history.push(self.history[self.history.len() - 3].to_owned());
+                        new_history.push(self.history[self.history.len() - 2].to_owned());
+                        new_history.push(self.history[self.history.len() - 1].to_owned());
                     } else {
                         // 保留多一轮对话(user + assistant)
+                        new_history.push(self.history[self.history.len() - 5].to_owned());
                         new_history.push(self.history[self.history.len() - 4].to_owned());
                         new_history.push(self.history[self.history.len() - 3].to_owned());
                         new_history.push(self.history[self.history.len() - 2].to_owned());
@@ -306,8 +312,14 @@ impl Conversation {
                 new_history.push(self.history[self.history.len() - 3].to_owned());
                 new_history.push(self.history[self.history.len() - 2].to_owned());
                 new_history.push(self.history[self.history.len() - 1].to_owned());
+            }  else if new_history.len() == 7 {
+                new_history.push(self.history[self.history.len() - 4].to_owned());
+                new_history.push(self.history[self.history.len() - 3].to_owned());
+                new_history.push(self.history[self.history.len() - 2].to_owned());
+                new_history.push(self.history[self.history.len() - 1].to_owned());
             } else {
                 // 保留多一轮对话(user + assistant)
+                new_history.push(self.history[self.history.len() - 5].to_owned());
                 new_history.push(self.history[self.history.len() - 4].to_owned());
                 new_history.push(self.history[self.history.len() - 3].to_owned());
                 new_history.push(self.history[self.history.len() - 2].to_owned());
