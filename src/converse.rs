@@ -188,7 +188,18 @@ impl Conversation {
                 }
             })
             .collect();
-        get_chat_completion_max_tokens(&model, &messages)
+        
+        let model_name = match model {
+            input if input.starts_with("ft:") => {
+                let mut parts = input.splitn(3, ':');
+                let _ = parts.next(); // 跳过第一个部分 "ft"
+                let model_name = parts.next().unwrap();
+                model_name.to_string()
+            }
+            input => input,
+        };
+        
+        get_chat_completion_max_tokens(&model_name, &messages)
     }
 
     /// Sends a message with specified role to the ChatGPT API and returns the completion response as stream.
