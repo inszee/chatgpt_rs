@@ -228,11 +228,16 @@ impl Conversation {
                     new_history.push(self.history[1].to_owned());
                     new_history.push(self.history[2].to_owned());
                     if new_history.len() == 4 {
-                        new_history.push(self.history[self.history.len() - 1].to_owned());
+                        new_history.push(self.history[3].to_owned());
                     } else if new_history.len() == 5 {
-                        new_history.push(self.history[self.history.len() - 2].to_owned());
-                        new_history.push(self.history[self.history.len() - 1].to_owned());
+                        new_history.push(self.history[3].to_owned());
+                        new_history.push(self.history[4].to_owned());
                     }  else if new_history.len() == 6 {
+                        new_history.push(self.history[3].to_owned());
+                        new_history.push(self.history[4].to_owned());
+                        new_history.push(self.history[5].to_owned());
+                    } else {
+                        new_history.push(self.history[self.history.len() - 4].to_owned());
                         new_history.push(self.history[self.history.len() - 3].to_owned());
                         new_history.push(self.history[self.history.len() - 2].to_owned());
                         new_history.push(self.history[self.history.len() - 1].to_owned());
@@ -303,11 +308,16 @@ impl Conversation {
             new_history.push(self.history[1].to_owned());
             new_history.push(self.history[2].to_owned());
             if new_history.len() == 4 {
-                new_history.push(self.history[self.history.len() - 1].to_owned());
+                new_history.push(self.history[3].to_owned());
             } else if new_history.len() == 5 {
-                new_history.push(self.history[self.history.len() - 2].to_owned());
-                new_history.push(self.history[self.history.len() - 1].to_owned());
+                new_history.push(self.history[3].to_owned());
+                new_history.push(self.history[4].to_owned());
             }  else if new_history.len() == 6 {
+                new_history.push(self.history[3].to_owned());
+                new_history.push(self.history[4].to_owned());
+                new_history.push(self.history[5].to_owned());
+            } else {
+                new_history.push(self.history[self.history.len() - 4].to_owned());
                 new_history.push(self.history[self.history.len() - 3].to_owned());
                 new_history.push(self.history[self.history.len() - 2].to_owned());
                 new_history.push(self.history[self.history.len() - 1].to_owned());
