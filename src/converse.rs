@@ -226,9 +226,9 @@ impl Conversation {
         match self.get_retain_completion_max_tokens() {
             Ok(token_count) => {
                 log::info!("send_message_streaming request tiktoken = {}", token_count);
-                if token_count <= 2048 {
+                if token_count <= 1024 {
                     // TODO: save user chat history into files.
-                    // 给completion max token保留最少2048的长度
+                    // 给completion max token保留最少1024的长度
                     let mut new_history = vec![];
                     // 保留3轮对话
                     if self.history.len() <= 3 {
@@ -257,7 +257,7 @@ impl Conversation {
                         self.history.clear();
                         self.history.extend_from_slice(&new_history);
                         if let Ok(token_count) = self.get_retain_completion_max_tokens() {
-                            if token_count <= 2048 {
+                            if token_count <= 1024 {
                                 log::warn!("send_message_streaming transcate token for input double check!...");
                                 let mut new_history = vec![];
                                 new_history.push(self.history[0].to_owned());
@@ -329,9 +329,9 @@ impl Conversation {
         match self.get_retain_completion_max_tokens() {
             Ok(token_count) => {
                 log::info!("push_history_after_streaming request tiktoken = {}", token_count);
-                if token_count <= 2048 {
+                if token_count <= 1024 {
                     // TODO: save user chat history into files.
-                    // 给completion max token保留最少2048的长度
+                    // 给completion max token保留最少1024的长度
                     let mut new_history = vec![];
                     // 保留3轮对话
                     if self.history.len() <= 3 {
@@ -360,7 +360,7 @@ impl Conversation {
                         self.history.clear();
                         self.history.extend_from_slice(&new_history);
                         if let Ok(token_count) = self.get_retain_completion_max_tokens() {
-                            if token_count <= 2048 {
+                            if token_count <= 1024 {
                                 log::warn!("push_history_after_streaming transcate token for input double check!...");
                                 let mut new_history = vec![];
                                 new_history.push(self.history[0].to_owned());
