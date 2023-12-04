@@ -7,7 +7,7 @@ use chatgpt::prelude::*;
 async fn main() -> Result<()> {
     // Creating a client
     let key = args().nth(1).unwrap();
-    let client = ChatGPT::new(key)?;
+    let client = ChatGPT::new(key,None)?;
 
     // Creating a new conversation
     let mut conversation = client.new_conversation();

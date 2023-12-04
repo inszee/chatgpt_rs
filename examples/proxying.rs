@@ -11,6 +11,7 @@ async fn main() -> Result<()> {
     // Note that it might not require an API key depending on proxy
     let client = ChatGPT::new_with_config(
         key,
+        None,
         ModelConfigurationBuilder::default()
             .api_url(Url::from_str("https://api.pawan.krd/v1/chat/completions").unwrap())
             .temperature(1.0)

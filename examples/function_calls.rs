@@ -42,6 +42,7 @@ async fn main() -> Result<()> {
     // Creating a new ChatGPT client and conversation
     let client = ChatGPT::new_with_config(
         key,
+        None,
         ModelConfigurationBuilder::default()
             .function_validation(FunctionValidationStrategy::Strict)
             .build()

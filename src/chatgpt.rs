@@ -98,7 +98,7 @@ pub mod test {
             None,
             ModelConfiguration {
                 temperature: 0.9,
-                reply_count: 3,
+                reply_count: Some(3),
                 ..Default::default()
             },
         )?;
