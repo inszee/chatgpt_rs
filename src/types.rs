@@ -211,6 +211,17 @@ pub struct InboundResponseChunk {
     pub choices: Vec<InboundChunkChoice>,
 }
 
+/// Represents a function call attempted by ChatGPT API
+#[derive(Debug, Clone, PartialOrd, PartialEq, Serialize, Deserialize)]
+pub struct StreamingFunctionCall {
+    /// Name of the function attempted to call
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+    /// Arguments used to call this function, represented by a stringified JSON Object
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub arguments: Option<String>,
+}
+
 /// A single message part of a chunked inbound response
 #[derive(Debug, Clone, Deserialize)]
 #[cfg(feature = "streams")]
@@ -230,11 +241,17 @@ pub enum InboundChunkPayload {
     AnnounceRoles {
         /// The announced role
         role: Role,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        function_call: Option<StreamingFunctionCall>,
     },
     /// Streams a part of message content
     StreamContent {
         /// The part of content
         content: String,
+    },
+    /// Function Call
+    FunctionCallContent {
+        function_call: StreamingFunctionCall,
     },
     /// Closes a single message
     Close {},

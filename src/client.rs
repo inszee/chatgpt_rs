@@ -331,7 +331,10 @@ impl ChatGPT {
         use eventsource_stream::Eventsource;
         use futures_util::StreamExt;
 
+        use crate::types::StreamingFunctionCall;
+
         let mut interrupt = false;
+        let mut function_name = String::new();
         // also handles errors
         response
             .error_for_status()
@@ -350,7 +353,13 @@ impl ChatGPT {
                             let choice = data.choices[0].to_owned();
                             log::info!("process_streaming_response data == {}",chunk);
                             match choice.delta {
-                                InboundChunkPayload::AnnounceRoles { role } => {
+                                InboundChunkPayload::AnnounceRoles { role,function_call } => {
+                                    let role = if function_call.is_some() {
+                                        function_name = function_call.unwrap().name.unwrap_or_default();
+                                        Role::Function
+                                    } else {
+                                        role
+                                    };
                                     ResponseChunk::BeginResponse {
                                         role,
                                         response_index: choice.index,
@@ -362,6 +371,16 @@ impl ChatGPT {
                                 },
                                 InboundChunkPayload::Close {} => ResponseChunk::CloseResponse {
                                     response_index: choice.index,
+                                },
+                                InboundChunkPayload::FunctionCallContent { function_call } => {
+                                    let content_function_call = StreamingFunctionCall {
+                                        name: Some(function_name.clone()),
+                                        arguments: function_call.arguments
+                                    };
+                                    ResponseChunk::Content {
+                                        delta: serde_json::to_string(&content_function_call).unwrap_or_default(),
+                                        response_index: choice.index,
+                                    }
                                 },
                             }
                         }
