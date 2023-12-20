@@ -379,6 +379,59 @@ impl ChatGPT {
             .map_err(crate::err::Error::from)
     }
 
+     /// Explicitly sends whole message history to the API and returns the response as stream. **Stream will be empty** if
+    /// any errors are returned from the server.
+    ///
+    /// In most cases, if you would like to store message history, you should be looking at the [`Conversation`] struct, and
+    /// [`Self::new_conversation()`] and [`Self::new_conversation_directed()`]
+    ///
+    /// Requires the `streams` crate feature
+    #[cfg(feature = "functions")]
+    #[cfg(feature = "streams")]
+    pub async fn send_history_and_function_streaming(
+        &self,
+        history: &Vec<ChatMessage>,
+        functions: &Vec<serde_json::Value>,
+    ) -> crate::Result<impl Stream<Item = ResponseChunk>> {
+        let functions = functions.into_iter().map(serde_json::to_value).collect::<serde_json::Result<Vec<serde_json::Value>>>()?;
+
+        log::debug!("send_history_and_function_streaming url = {},and json = {:?}",self.config.api_url,serde_json::json!(&CompletionRequest {
+            model: self.config.engine.as_ref(),
+            messages: history,
+            stream: true,
+            temperature: self.config.temperature,
+            top_p: self.config.top_p,
+            max_tokens: self.config.max_tokens,
+            frequency_penalty: self.config.frequency_penalty,
+            presence_penalty: self.config.presence_penalty,
+            reply_count: self.config.reply_count,
+            #[cfg(feature = "functions")]
+            functions: &functions,
+        }));
+        let response = self
+            .client
+            .post(self.config.api_url.clone())
+            .json(&CompletionRequest {
+                model: self.config.engine.as_ref(),
+                stream: true,
+                messages: history,
+                temperature: self.config.temperature,
+                top_p: self.config.top_p,
+                max_tokens: self.config.max_tokens,
+                frequency_penalty: self.config.frequency_penalty,
+                presence_penalty: self.config.presence_penalty,
+                reply_count: self.config.reply_count,
+                #[cfg(feature = "functions")]
+                functions: &functions,
+            })
+            .send()
+            .await?;
+        if !response.status().is_success() {
+            log::error!("send_history_and_function_streaming response error = {:#?}",response);
+        }
+        Self::process_streaming_response(response)
+    }
+
     /// Sends a message with specified function descriptors. ChatGPT is then able to call these functions.
     ///
     /// **NOTE**: Functions are processed [as tokens on the backend](https://platform.openai.com/docs/guides/gpt/function-calling),
