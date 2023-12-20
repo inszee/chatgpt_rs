@@ -339,8 +339,6 @@ impl ChatGPT {
         use eventsource_stream::Eventsource;
         use futures_util::StreamExt;
 
-        use crate::types::StreamingFunctionCall;
-
         let mut interrupt = false;
         // also handles errors
         response

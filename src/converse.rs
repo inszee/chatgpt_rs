@@ -621,7 +621,7 @@ impl Conversation {
         if let Ok(result) = call_result {
             let result = serde_json::to_string(&result);
             return Some(
-                self.send_role_message_streaming(Role::Function, result.ok()?)
+                self.send_role_message_function_streaming(Role::Function, result.ok()?)
                     .await,
             );
         }
@@ -629,7 +629,7 @@ impl Conversation {
         if self.client.config.function_validation == FunctionValidationStrategy::Strict {
             // Sending error response from function
             Some(
-                self.send_role_message_streaming(
+                self.send_role_message_function_streaming(
                     Role::System,
                     call_result.unwrap_err().to_string(),
                 )
