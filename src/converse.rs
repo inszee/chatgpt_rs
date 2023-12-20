@@ -46,6 +46,8 @@ impl Conversation {
                 content: first_message,
                 #[cfg(feature = "functions")]
                 function_call: None,
+                #[cfg(feature = "functions")]
+                name: None,
             }],
             #[cfg(feature = "functions")]
             functions: HashMap::with_capacity(4),
@@ -105,6 +107,8 @@ impl Conversation {
             content: message.into(),
             #[cfg(feature = "functions")]
             function_call: None,
+            #[cfg(feature = "functions")]
+            name: None,
         });
 
         #[cfg(feature = "functions")]
@@ -151,6 +155,8 @@ impl Conversation {
             content: message.into(),
             #[cfg(feature = "functions")]
             function_call: None,
+            #[cfg(feature = "functions")]
+            name: None,
         });
         let resp = self
             .client
@@ -221,6 +227,8 @@ impl Conversation {
             content: message.into(),
             #[cfg(feature = "functions")]
             function_call: None,
+            #[cfg(feature = "functions")]
+            name: None,
         });
 
         match self.get_retain_completion_max_tokens() {
@@ -303,12 +311,15 @@ impl Conversation {
         &mut self,
         role: Role,
         message: S,
+        name: Option<String>,
     ) -> crate::Result<impl Stream<Item = ResponseChunk>> {
         self.history.push(ChatMessage {
             role,
             content: message.into(),
             #[cfg(feature = "functions")]
             function_call: None,
+            #[cfg(feature = "functions")]
+            name: name,
         });
 
         match self.get_retain_completion_max_tokens() {
@@ -414,7 +425,7 @@ impl Conversation {
         &mut self,
         message: S,
     ) -> crate::Result<impl Stream<Item = ResponseChunk>> {
-        self.send_role_message_function_streaming(Role::User, message)
+        self.send_role_message_function_streaming(Role::User, message, None)
             .await
     }
 
@@ -441,7 +452,10 @@ impl Conversation {
         self.history.push(ChatMessage {
             role: role,
             content: message.into(),
+            #[cfg(feature = "functions")]
             function_call: None,
+            #[cfg(feature = "functions")]
+            name: None,
         });
         match self.get_retain_completion_max_tokens() {
             Ok(token_count) => {
@@ -621,8 +635,12 @@ impl Conversation {
         if let Ok(result) = call_result {
             let result = serde_json::to_string(&result);
             return Some(
-                self.send_role_message_function_streaming(Role::Function, result.ok()?)
-                    .await,
+                self.send_role_message_function_streaming(
+                    Role::Function,
+                    result.ok()?,
+                    Some(call.name.clone()),
+                )
+                .await,
             );
         }
 
@@ -632,6 +650,7 @@ impl Conversation {
                 self.send_role_message_function_streaming(
                     Role::System,
                     call_result.unwrap_err().to_string(),
+                    Some(call.name.clone()),
                 )
                 .await,
             )

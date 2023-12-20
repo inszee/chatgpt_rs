@@ -31,6 +31,10 @@ pub struct ChatMessage {
     #[cfg(feature = "functions")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub function_call: Option<FunctionCall>,
+    /// Function response need name
+    #[cfg(feature = "functions")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
 }
 
 fn deserialize_maybe_null<'de, D>(deserializer: D) -> Result<String, D::Error>
@@ -67,6 +71,8 @@ impl ChatMessage {
                         content: String::new(),
                         #[cfg(feature = "functions")]
                         function_call: None,
+                        #[cfg(feature = "functions")]
+                        name: None,
                     };
                     result.push(msg);
                 }

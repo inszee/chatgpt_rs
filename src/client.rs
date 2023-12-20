@@ -272,6 +272,8 @@ impl ChatGPT {
                     content: message.into(),
                     #[cfg(feature = "functions")]
                     function_call: None,
+                    #[cfg(feature = "functions")]
+                    name: None,
                 }],
                 stream: false,
                 temperature: self.config.temperature,
@@ -315,6 +317,8 @@ impl ChatGPT {
                     content: message.into(),
                     #[cfg(feature = "functions")]
                     function_call: None,
+                    #[cfg(feature = "functions")]
+                    name: None,
                 }],
                 stream: true,
                 temperature: self.config.temperature,
@@ -514,6 +518,8 @@ impl ChatGPT {
                     content: message.into(),
                     #[cfg(feature = "functions")]
                     function_call: None,
+                    #[cfg(feature = "functions")]
+                    name: None,
                 }],
                 stream: false,
                 temperature: self.config.temperature,
