@@ -334,7 +334,6 @@ impl ChatGPT {
         use crate::types::StreamingFunctionCall;
 
         let mut interrupt = false;
-        let mut function_name = String::new();
         // also handles errors
         response
             .error_for_status()
@@ -355,14 +354,19 @@ impl ChatGPT {
                             match choice.delta {
                                 InboundChunkPayload::AnnounceRoles { role,function_call } => {
                                     let role = if function_call.is_some() {
-                                        function_name = function_call.unwrap().name.unwrap_or_default();
                                         Role::Function
                                     } else {
                                         role
                                     };
+                                    let funcion_name = if function_call.is_some() {
+                                        function_call.unwrap().name
+                                    } else {
+                                        None
+                                    };
                                     ResponseChunk::BeginResponse {
                                         role,
                                         response_index: choice.index,
+                                        function_name: funcion_name
                                     }
                                 }
                                 InboundChunkPayload::StreamContent { content } => ResponseChunk::Content {
@@ -373,12 +377,8 @@ impl ChatGPT {
                                     response_index: choice.index,
                                 },
                                 InboundChunkPayload::FunctionCallContent { function_call } => {
-                                    let content_function_call = StreamingFunctionCall {
-                                        name: Some(function_name.clone()),
-                                        arguments: function_call.arguments
-                                    };
                                     ResponseChunk::Content {
-                                        delta: serde_json::to_string(&content_function_call).unwrap_or_default(),
+                                        delta: function_call.arguments.unwrap_or_default(),
                                         response_index: choice.index,
                                     }
                                 },

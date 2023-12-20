@@ -58,6 +58,7 @@ impl ChatMessage {
                 ResponseChunk::BeginResponse {
                     role,
                     response_index: _,
+                    function_name: _,
                 } => {
                     let msg = ChatMessage {
                         role,
@@ -193,6 +194,8 @@ pub enum ResponseChunk {
         role: Role,
         /// Index of the message. Used when `reply_count` is set to more than 1 in API config
         response_index: usize,
+        /// The function call name
+        function_name: Option<String>
     },
     /// Ends a single message response response
     CloseResponse {
@@ -241,6 +244,7 @@ pub enum InboundChunkPayload {
     AnnounceRoles {
         /// The announced role
         role: Role,
+        /// The function call with assistant
         #[serde(skip_serializing_if = "Option::is_none")]
         function_call: Option<StreamingFunctionCall>,
     },
@@ -251,6 +255,7 @@ pub enum InboundChunkPayload {
     },
     /// Function Call
     FunctionCallContent {
+        /// The function call content
         function_call: StreamingFunctionCall,
     },
     /// Closes a single message
