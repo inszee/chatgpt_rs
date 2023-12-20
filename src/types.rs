@@ -34,7 +34,9 @@ pub struct ChatMessage {
 }
 
 fn deserialize_maybe_null<'de, D>(deserializer: D) -> Result<String, D::Error>
-    where D: Deserializer<'de> {
+where
+    D: Deserializer<'de>,
+{
     let buf = Option::<String>::deserialize(deserializer)?;
     Ok(buf.unwrap_or(String::new()))
 }
@@ -195,7 +197,7 @@ pub enum ResponseChunk {
         /// Index of the message. Used when `reply_count` is set to more than 1 in API config
         response_index: usize,
         /// The function call name
-        function_name: Option<String>
+        function_name: Option<String>,
     },
     /// Ends a single message response response
     CloseResponse {

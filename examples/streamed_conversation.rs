@@ -9,7 +9,7 @@ use std::io::{stdout, Write};
 async fn main() -> Result<()> {
     // Creating a client
     let key = args().nth(1).unwrap();
-    let client = ChatGPT::new(key,None)?;
+    let client = ChatGPT::new(key, None)?;
     let mut conversation = client.new_conversation();
 
     // Acquiring a streamed response

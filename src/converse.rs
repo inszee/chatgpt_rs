@@ -1,7 +1,7 @@
 use std::path::Path;
 
-use tokio::{fs::File, io::AsyncWriteExt};
 use tiktoken_rs::{get_chat_completion_max_tokens, ChatCompletionRequestMessage};
+use tokio::{fs::File, io::AsyncWriteExt};
 
 #[cfg(feature = "functions")]
 use crate::functions::{
@@ -178,7 +178,7 @@ impl Conversation {
                     Role::System => "system".to_string(),
                     Role::Assistant => "assistant".to_string(),
                     Role::User => "user".to_string(),
-                    Role::Function => "function".to_string()
+                    Role::Function => "function".to_string(),
                 };
                 ChatCompletionRequestMessage {
                     content: Some(item.content.clone()),
@@ -188,7 +188,7 @@ impl Conversation {
                 }
             })
             .collect();
-        
+
         let model_name = match model {
             input if input.starts_with("ft:") => {
                 let mut parts = input.splitn(3, ':');
@@ -198,7 +198,7 @@ impl Conversation {
             }
             input => input,
         };
-        
+
         get_chat_completion_max_tokens(&model_name, &messages)
     }
 
@@ -244,7 +244,7 @@ impl Conversation {
                         } else if new_history.len() == 5 {
                             new_history.push(self.history[3].to_owned());
                             new_history.push(self.history[4].to_owned());
-                        }  else if new_history.len() == 6 {
+                        } else if new_history.len() == 6 {
                             new_history.push(self.history[3].to_owned());
                             new_history.push(self.history[4].to_owned());
                             new_history.push(self.history[5].to_owned());
@@ -272,7 +272,10 @@ impl Conversation {
                 }
             }
             Err(err) => {
-                log::info!("send_message_streaming self.get_retain_completion_max_tokens() err:{}",err);
+                log::info!(
+                    "send_message_streaming self.get_retain_completion_max_tokens() err:{}",
+                    err
+                );
                 let mut new_history = vec![];
                 new_history.push(self.history[0].to_owned());
                 new_history.push(self.history[1].to_owned());
@@ -310,17 +313,24 @@ impl Conversation {
 
         match self.get_retain_completion_max_tokens() {
             Ok(token_count) => {
-                log::info!("send_role_message_function_streaming request tiktoken = {}", token_count);
+                log::info!(
+                    "send_role_message_function_streaming request tiktoken = {}",
+                    token_count
+                );
                 if token_count <= 1024 {
                     // TODO: save user chat history into files.
                     // 给completion max token保留最少1024的长度
                     let mut new_history = vec![];
                     // 保留3轮对话
                     if self.history.len() <= 3 {
-                        log::warn!("send_role_message_function_streaming too long for user input...");
+                        log::warn!(
+                            "send_role_message_function_streaming too long for user input..."
+                        );
                     } else {
                         // 只保留前3轮对话主题和当前对话
-                        log::warn!("send_role_message_function_streaming transcate token for input...");
+                        log::warn!(
+                            "send_role_message_function_streaming transcate token for input..."
+                        );
                         new_history.push(self.history[0].to_owned());
                         new_history.push(self.history[1].to_owned());
                         new_history.push(self.history[2].to_owned());
@@ -329,7 +339,7 @@ impl Conversation {
                         } else if new_history.len() == 5 {
                             new_history.push(self.history[3].to_owned());
                             new_history.push(self.history[4].to_owned());
-                        }  else if new_history.len() == 6 {
+                        } else if new_history.len() == 6 {
                             new_history.push(self.history[3].to_owned());
                             new_history.push(self.history[4].to_owned());
                             new_history.push(self.history[5].to_owned());
@@ -367,10 +377,13 @@ impl Conversation {
                 self.history.extend_from_slice(&new_history);
             }
         }
-        let stream = self.client.send_history_and_function_streaming(&self.history,&self.function_descriptors).await?;
+        let stream = self
+            .client
+            .send_history_and_function_streaming(&self.history, &self.function_descriptors)
+            .await?;
         Ok(stream)
     }
-    
+
     /// Sends the message to the ChatGPT API and returns the completion response as stream.
     ///
     /// Note, that this method will not automatically save the received message to history, as
@@ -401,7 +414,8 @@ impl Conversation {
         &mut self,
         message: S,
     ) -> crate::Result<impl Stream<Item = ResponseChunk>> {
-        self.send_role_message_function_streaming(Role::User, message).await
+        self.send_role_message_function_streaming(Role::User, message)
+            .await
     }
 
     /// Saves the history to a local JSON file, that can be restored to a conversation at runtime later.
@@ -416,9 +430,10 @@ impl Conversation {
         Ok(())
     }
 
+    #[cfg(feature = "streams")]
     #[cfg(feature = "functions")]
-     /// if request error and u can push history after error response.
-     pub fn push_history_after_streaming<S: Into<String>>(
+    /// if request error and u can push history after error response.
+    pub fn push_history_after_streaming<S: Into<String>>(
         &mut self,
         role: Role,
         message: S,
@@ -430,7 +445,10 @@ impl Conversation {
         });
         match self.get_retain_completion_max_tokens() {
             Ok(token_count) => {
-                log::info!("push_history_after_streaming request tiktoken = {}", token_count);
+                log::info!(
+                    "push_history_after_streaming request tiktoken = {}",
+                    token_count
+                );
                 if token_count <= 1024 {
                     // TODO: save user chat history into files.
                     // 给completion max token保留最少1024的长度
@@ -449,7 +467,7 @@ impl Conversation {
                         } else if new_history.len() == 5 {
                             new_history.push(self.history[3].to_owned());
                             new_history.push(self.history[4].to_owned());
-                        }  else if new_history.len() == 6 {
+                        } else if new_history.len() == 6 {
                             new_history.push(self.history[3].to_owned());
                             new_history.push(self.history[4].to_owned());
                             new_history.push(self.history[5].to_owned());
@@ -477,7 +495,10 @@ impl Conversation {
                 }
             }
             Err(err) => {
-                log::info!("push_history_after_streaming self.get_retain_completion_max_tokens() err:{}",err);
+                log::info!(
+                    "push_history_after_streaming self.get_retain_completion_max_tokens() err:{}",
+                    err
+                );
                 let mut new_history = vec![];
                 new_history.push(self.history[0].to_owned());
                 new_history.push(self.history[1].to_owned());
@@ -487,6 +508,14 @@ impl Conversation {
                 self.history.extend_from_slice(&new_history);
             }
         }
+        Ok(())
+    }
+
+    #[cfg(feature = "streams")]
+    #[cfg(feature = "functions")]
+    /// if request error and u can push history after error response.
+    pub fn push_history_after_function_streaming(&mut self, msg: ChatMessage) -> crate::Result<()> {
+        self.history.push(msg);
         Ok(())
     }
 
@@ -591,14 +620,20 @@ impl Conversation {
         };
         if let Ok(result) = call_result {
             let result = serde_json::to_string(&result);
-            return Some(self.send_role_message_streaming(Role::Function, result.ok()?).await);
+            return Some(
+                self.send_role_message_streaming(Role::Function, result.ok()?)
+                    .await,
+            );
         }
 
         if self.client.config.function_validation == FunctionValidationStrategy::Strict {
             // Sending error response from function
             Some(
-                self.send_role_message_streaming(Role::System, call_result.unwrap_err().to_string())
-                    .await,
+                self.send_role_message_streaming(
+                    Role::System,
+                    call_result.unwrap_err().to_string(),
+                )
+                .await,
             )
         } else {
             None

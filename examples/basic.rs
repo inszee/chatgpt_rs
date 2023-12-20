@@ -10,7 +10,7 @@ async fn main() -> Result<()> {
     // Creating a new ChatGPT client.
     // Note that it requires an API key, and uses
     // tokens from your OpenAI API account balance.
-    let client = ChatGPT::new(key,None)?;
+    let client = ChatGPT::new(key, None)?;
 
     // Sending a message and getting the completion
     let response = client

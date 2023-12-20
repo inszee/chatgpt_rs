@@ -31,13 +31,17 @@ pub struct ChatGPT {
 
 impl ChatGPT {
     /// Constructs a new ChatGPT API client with provided API key and default configuration
-    pub fn new<S: Into<String>>(api_key: S,origin_id: Option<S>) -> crate::Result<Self> {
-        Self::new_with_config(api_key, origin_id,ModelConfiguration::default())
+    pub fn new<S: Into<String>>(api_key: S, origin_id: Option<S>) -> crate::Result<Self> {
+        Self::new_with_config(api_key, origin_id, ModelConfiguration::default())
     }
 
     /// Constructs a new ChatGPT API client with provided API key, default configuration and a reqwest proxy
-    pub fn new_with_proxy<S: Into<String>>(api_key: S,origin_id: Option<S>, proxy: Proxy) -> crate::Result<Self> {
-        Self::new_with_config_proxy(api_key, origin_id,ModelConfiguration::default(), proxy)
+    pub fn new_with_proxy<S: Into<String>>(
+        api_key: S,
+        origin_id: Option<S>,
+        proxy: Proxy,
+    ) -> crate::Result<Self> {
+        Self::new_with_config_proxy(api_key, origin_id, ModelConfiguration::default(), proxy)
     }
 
     /// Constructs a new ChatGPT API client with provided API Key and Configuration
@@ -59,7 +63,7 @@ impl ChatGPT {
                 HeaderValue::from_bytes(format!("{origin_id}").as_bytes())?,
             );
         }
-       
+
         let client = reqwest::ClientBuilder::new()
             .default_headers(headers)
             .timeout(config.timeout)
@@ -212,19 +216,23 @@ impl ChatGPT {
         &self,
         history: &Vec<ChatMessage>,
     ) -> crate::Result<impl Stream<Item = ResponseChunk>> {
-        log::debug!("send_history_streaming url = {},and json = {:?}",self.config.api_url,serde_json::json!(&CompletionRequest {
-            model: self.config.engine.as_ref(),
-            messages: history,
-            stream: true,
-            temperature: self.config.temperature,
-            top_p: self.config.top_p,
-            max_tokens: self.config.max_tokens,
-            frequency_penalty: self.config.frequency_penalty,
-            presence_penalty: self.config.presence_penalty,
-            reply_count: self.config.reply_count,
-            #[cfg(feature = "functions")]
-            functions: &Vec::new(),
-        }));
+        log::debug!(
+            "send_history_streaming url = {},and json = {:?}",
+            self.config.api_url,
+            serde_json::json!(&CompletionRequest {
+                model: self.config.engine.as_ref(),
+                messages: history,
+                stream: true,
+                temperature: self.config.temperature,
+                top_p: self.config.top_p,
+                max_tokens: self.config.max_tokens,
+                frequency_penalty: self.config.frequency_penalty,
+                presence_penalty: self.config.presence_penalty,
+                reply_count: self.config.reply_count,
+                #[cfg(feature = "functions")]
+                functions: &Vec::new(),
+            })
+        );
         let response = self
             .client
             .post(self.config.api_url.clone())
@@ -244,7 +252,7 @@ impl ChatGPT {
             .send()
             .await?;
         if !response.status().is_success() {
-            log::error!("send_history_streaming response error = {:#?}",response);
+            log::error!("send_history_streaming response error = {:#?}", response);
         }
         Self::process_streaming_response(response)
     }
@@ -350,9 +358,12 @@ impl ChatGPT {
                             let data: InboundResponseChunk = serde_json::from_str(chunk)
                                 .expect("Invalid inbound streaming response payload!");
                             let choice = data.choices[0].to_owned();
-                            log::info!("process_streaming_response data == {}",chunk);
+                            log::info!("process_streaming_response data == {}", chunk);
                             match choice.delta {
-                                InboundChunkPayload::AnnounceRoles { role,function_call } => {
+                                InboundChunkPayload::AnnounceRoles {
+                                    role,
+                                    function_call,
+                                } => {
                                     let role = if function_call.is_some() {
                                         Role::Function
                                     } else {
@@ -366,13 +377,15 @@ impl ChatGPT {
                                     ResponseChunk::BeginResponse {
                                         role,
                                         response_index: choice.index,
-                                        function_name: funcion_name
+                                        function_name: funcion_name,
                                     }
                                 }
-                                InboundChunkPayload::StreamContent { content } => ResponseChunk::Content {
-                                    delta: content,
-                                    response_index: choice.index,
-                                },
+                                InboundChunkPayload::StreamContent { content } => {
+                                    ResponseChunk::Content {
+                                        delta: content,
+                                        response_index: choice.index,
+                                    }
+                                }
                                 InboundChunkPayload::Close {} => ResponseChunk::CloseResponse {
                                     response_index: choice.index,
                                 },
@@ -381,11 +394,11 @@ impl ChatGPT {
                                         delta: function_call.arguments.unwrap_or_default(),
                                         response_index: choice.index,
                                     }
-                                },
+                                }
                             }
                         }
                         Err(err) => {
-                            log::error!("Stream closed abruptly,with err:{}",err);
+                            log::error!("Stream closed abruptly,with err:{}", err);
                             if interrupt {
                                 part.expect("Stream closed abruptly!").data;
                             } else {
@@ -399,7 +412,7 @@ impl ChatGPT {
             .map_err(crate::err::Error::from)
     }
 
-     /// Explicitly sends whole message history to the API and returns the response as stream. **Stream will be empty** if
+    /// Explicitly sends whole message history to the API and returns the response as stream. **Stream will be empty** if
     /// any errors are returned from the server.
     ///
     /// In most cases, if you would like to store message history, you should be looking at the [`Conversation`] struct, and
@@ -413,21 +426,28 @@ impl ChatGPT {
         history: &Vec<ChatMessage>,
         functions: &Vec<serde_json::Value>,
     ) -> crate::Result<impl Stream<Item = ResponseChunk>> {
-        let functions = functions.into_iter().map(serde_json::to_value).collect::<serde_json::Result<Vec<serde_json::Value>>>()?;
+        let functions = functions
+            .into_iter()
+            .map(serde_json::to_value)
+            .collect::<serde_json::Result<Vec<serde_json::Value>>>()?;
 
-        log::debug!("send_history_and_function_streaming url = {},and json = {:?}",self.config.api_url,serde_json::json!(&CompletionRequest {
-            model: self.config.engine.as_ref(),
-            messages: history,
-            stream: true,
-            temperature: self.config.temperature,
-            top_p: self.config.top_p,
-            max_tokens: self.config.max_tokens,
-            frequency_penalty: self.config.frequency_penalty,
-            presence_penalty: self.config.presence_penalty,
-            reply_count: self.config.reply_count,
-            #[cfg(feature = "functions")]
-            functions: &functions,
-        }));
+        log::debug!(
+            "send_history_and_function_streaming url = {},and json = {:?}",
+            self.config.api_url,
+            serde_json::json!(&CompletionRequest {
+                model: self.config.engine.as_ref(),
+                messages: history,
+                stream: true,
+                temperature: self.config.temperature,
+                top_p: self.config.top_p,
+                max_tokens: self.config.max_tokens,
+                frequency_penalty: self.config.frequency_penalty,
+                presence_penalty: self.config.presence_penalty,
+                reply_count: self.config.reply_count,
+                #[cfg(feature = "functions")]
+                functions: &functions,
+            })
+        );
         let response = self
             .client
             .post(self.config.api_url.clone())
@@ -447,7 +467,10 @@ impl ChatGPT {
             .send()
             .await?;
         if !response.status().is_success() {
-            log::error!("send_history_and_function_streaming response error = {:#?}",response);
+            log::error!(
+                "send_history_and_function_streaming response error = {:#?}",
+                response
+            );
         }
         Self::process_streaming_response(response)
     }
