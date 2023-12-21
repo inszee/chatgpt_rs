@@ -528,6 +528,32 @@ impl Conversation {
     #[cfg(feature = "streams")]
     #[cfg(feature = "functions")]
     /// if request error and u can push history after error response.
+    pub fn push_error_history_after_streaming<S: Into<String>>(
+        &mut self,
+        role: Role,
+        message: S,
+    ) -> crate::Result<()> {
+        self.history.push(ChatMessage {
+            role: role,
+            content: message.into(),
+            #[cfg(feature = "functions")]
+            function_call: None,
+            #[cfg(feature = "functions")]
+            name: None,
+        });
+        let mut new_history = vec![];
+        new_history.push(self.history[0].to_owned());
+        new_history.push(self.history[1].to_owned());
+        new_history.push(self.history[2].to_owned());
+        new_history.push(self.history[self.history.len() - 1].to_owned());
+        self.history.clear();
+        self.history.extend_from_slice(&new_history);
+        Ok(())
+    }
+
+    #[cfg(feature = "streams")]
+    #[cfg(feature = "functions")]
+    /// if request error and u can push history after error response.
     pub fn push_history_after_function_streaming(&mut self, msg: ChatMessage) -> crate::Result<()> {
         self.history.push(msg);
         Ok(())

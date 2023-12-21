@@ -77,6 +77,8 @@ pub enum ChatGPTEngine {
     Gpt4_0314,
     /// Different version of GPT-4, able to remember 32,000 tokens: `gpt-4-32k-0314`
     Gpt4_32k_0314,
+     /// Different version of GPT-4, able to remember 32,000 tokens: `gpt-4-0613`
+    Gpt4_0613,
     /// Custom (or new/unimplemented) version of ChatGPT
     Custom(String),
 }
@@ -110,6 +112,7 @@ impl AsRef<str> for ChatGPTEngine {
             ChatGPTEngine::Gpt4 => "gpt-4",
             ChatGPTEngine::Gpt4_32k => "gpt-4-32k",
             ChatGPTEngine::Gpt4_0314 => "gpt-4-0314",
+            ChatGPTEngine::Gpt4_0613 => "gpt-4-0613",
             ChatGPTEngine::Gpt4_32k_0314 => "gpt-4-32k-0314",
             ChatGPTEngine::Custom(custom) => custom.as_ref(),
         }
