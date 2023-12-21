@@ -360,7 +360,7 @@ impl ChatGPT {
                             let data: InboundResponseChunk = serde_json::from_str(chunk)
                                 .expect("Invalid inbound streaming response payload!");
                             let choice = data.choices[0].to_owned();
-                            log::info!("process_streaming_response data == {}", chunk);
+                            log::debug!("process_streaming_response data == {}", chunk);
                             match choice.delta {
                                 InboundChunkPayload::AnnounceRoles {
                                     role,
