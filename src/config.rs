@@ -77,7 +77,7 @@ pub enum ChatGPTEngine {
     Gpt4_0314,
     /// Different version of GPT-4, able to remember 32,000 tokens: `gpt-4-32k-0314`
     Gpt4_32k_0314,
-     /// Different version of GPT-4, able to remember 32,000 tokens: `gpt-4-0613`
+    /// Different version of GPT-4, able to remember 32,000 tokens: `gpt-4-0613`
     Gpt4_0613,
     /// Custom (or new/unimplemented) version of ChatGPT
     Custom(String),
