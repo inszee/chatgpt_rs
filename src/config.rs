@@ -79,6 +79,10 @@ pub enum ChatGPTEngine {
     Gpt4_32k_0314,
     /// Different version of GPT-4, able to remember 32,000 tokens: `gpt-4-0613`
     Gpt4_0613,
+    /// With 128k context, fresher knowledge and the broadest set of capabilities, GPT-4 Turbo is more powerful than GPT-4 and offered at a lower price.
+    Gpt4_1106_preview,
+    /// With 128k context, fresher knowledge and the broadest set of capabilities, GPT-4 Turbo is more powerful than GPT-4 and offered at a lower price.
+    Gpt4_1106_vision_preview,
     /// Custom (or new/unimplemented) version of ChatGPT
     Custom(String),
 }
@@ -114,6 +118,8 @@ impl AsRef<str> for ChatGPTEngine {
             ChatGPTEngine::Gpt4_0314 => "gpt-4-0314",
             ChatGPTEngine::Gpt4_0613 => "gpt-4-0613",
             ChatGPTEngine::Gpt4_32k_0314 => "gpt-4-32k-0314",
+            ChatGPTEngine::Gpt4_1106_preview => "gpt-4-1106-preview",
+            ChatGPTEngine::Gpt4_1106_vision_preview => "gpt-4-1106-vision-preview",
             ChatGPTEngine::Custom(custom) => custom.as_ref(),
         }
     }
