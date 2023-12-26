@@ -375,6 +375,20 @@ impl Conversation {
                             }
                         }
                     }
+                } else {
+                    if self.history.len() > 10 {
+                        let mut new_history = vec![];
+                        new_history.push(self.history[0].to_owned());
+                        new_history.push(self.history[1].to_owned());
+                        new_history.push(self.history[2].to_owned());
+                        new_history.push(self.history[self.history.len() - 7].to_owned());
+                        new_history.push(self.history[self.history.len() - 6].to_owned());
+                        new_history.push(self.history[self.history.len() - 5].to_owned());
+                        new_history.push(self.history[self.history.len() - 4].to_owned());
+                        new_history.push(self.history[self.history.len() - 3].to_owned());
+                        new_history.push(self.history[self.history.len() - 2].to_owned());
+                        new_history.push(self.history[self.history.len() - 1].to_owned());
+                    }
                 }
             }
             Err(err) => {
@@ -505,6 +519,20 @@ impl Conversation {
                                 self.history.extend_from_slice(&new_history);
                             }
                         }
+                    }
+                } else {
+                    if self.history.len() > 10 {
+                        let mut new_history = vec![];
+                        new_history.push(self.history[0].to_owned());
+                        new_history.push(self.history[1].to_owned());
+                        new_history.push(self.history[2].to_owned());
+                        new_history.push(self.history[self.history.len() - 7].to_owned());
+                        new_history.push(self.history[self.history.len() - 6].to_owned());
+                        new_history.push(self.history[self.history.len() - 5].to_owned());
+                        new_history.push(self.history[self.history.len() - 4].to_owned());
+                        new_history.push(self.history[self.history.len() - 3].to_owned());
+                        new_history.push(self.history[self.history.len() - 2].to_owned());
+                        new_history.push(self.history[self.history.len() - 1].to_owned());
                     }
                 }
             }
