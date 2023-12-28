@@ -388,6 +388,8 @@ impl Conversation {
                         new_history.push(self.history[self.history.len() - 3].to_owned());
                         new_history.push(self.history[self.history.len() - 2].to_owned());
                         new_history.push(self.history[self.history.len() - 1].to_owned());
+                        self.history.clear();
+                        self.history.extend_from_slice(&new_history);
                     }
                 }
             }
@@ -533,6 +535,8 @@ impl Conversation {
                         new_history.push(self.history[self.history.len() - 3].to_owned());
                         new_history.push(self.history[self.history.len() - 2].to_owned());
                         new_history.push(self.history[self.history.len() - 1].to_owned());
+                        self.history.clear();
+                        self.history.extend_from_slice(&new_history);
                     }
                 }
             }
