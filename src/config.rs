@@ -69,6 +69,8 @@ pub enum ChatGPTEngine {
     Gpt35Turbo16K,
     /// Different version of standard engine: `gpt-3.5-turbo-16k-0613`
     Gpt35Turbo16K_0613,
+    /// Different version of standard engine: `gpt-3.5-turbo-0125`
+    Gpt35Turbo_0125,
     /// Base GPT-4 model: `gpt-4`
     Gpt4,
     /// Version of GPT-4, able to remember 32,000 tokens: `gpt-4-32k`
@@ -113,6 +115,7 @@ impl AsRef<str> for ChatGPTEngine {
             ChatGPTEngine::Gpt35Turbo_0613 => "gpt-3.5-turbo-0613",
             ChatGPTEngine::Gpt35Turbo16K => "gpt-3.5-turbo-16k",
             ChatGPTEngine::Gpt35Turbo16K_0613 => "gpt-3.5-turbo-16k-0613",
+            ChatGPTEngine::Gpt35Turbo_0125 => "gpt-3.5-turbo-0125",
             ChatGPTEngine::Gpt4 => "gpt-4",
             ChatGPTEngine::Gpt4_32k => "gpt-4-32k",
             ChatGPTEngine::Gpt4_0314 => "gpt-4-0314",
